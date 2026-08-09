@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'theme/app_theme.dart';
-import 'screens/splash_screen.dart';
+import 'Screens/splash_screen.dart';
 
 void main() {
   runApp(const AruvixApp());
