@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'main_shell.dart';
 import '../services/api_service.dart';
 
@@ -13,11 +14,17 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool isSignIn = true;
   bool isLoading = false;
+  bool isGoogleLoading = false;
   final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
   final _otpControllers = List.generate(6, (_) => TextEditingController());
   final _otpFocusNodes = List.generate(6, (_) => FocusNode());
+
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId:
+        '901729015085-t1tjo0ea59fgfu54ril4oanc3d9l54i1.apps.googleusercontent.com',
+  );
 
   Future<void> _sendOtp() async {
     final phone = _phoneController.text.trim();
@@ -114,6 +121,56 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result["message"]),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => isGoogleLoading = true);
+
+    try {
+      final googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled the sign-in
+        setState(() => isGoogleLoading = false);
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+
+      if (idToken == null) {
+        throw Exception('Failed to get Google ID token');
+      }
+
+      final result = await ApiService.googleSignIn(idToken);
+
+      setState(() => isGoogleLoading = false);
+
+      if (!mounted) return;
+
+      if (result["success"] == true) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainShell()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result["message"]),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => isGoogleLoading = false);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-in failed: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -406,13 +463,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: null,
-                            icon: const Text('G',
-                                style: TextStyle(
-                                    color: Color(0xFF4285F4),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16)),
-                            label: Text('Continue with Google',
+                            onPressed: isGoogleLoading ? null : _handleGoogleSignIn,
+                            icon: isGoogleLoading
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text('G',
+                                    style: TextStyle(
+                                        color: Color(0xFF4285F4),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)),
+                            label: Text(
+                                isGoogleLoading
+                                    ? 'Signing in...'
+                                    : 'Continue with Google',
                                 style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     color: const Color(0xFF374151),

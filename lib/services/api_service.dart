@@ -60,6 +60,27 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>> googleSignIn(String idToken) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$authUrl/google-signin"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"idToken": idToken}),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        await _saveToken(data["token"]);
+        return {"success": true, "data": data};
+      } else {
+        return {"success": false, "message": data["message"] ?? "Google sign-in failed"};
+      }
+    } catch (e) {
+      return {"success": false, "message": "Network error: $e"};
+    }
+  }
+
   static Future<Map<String, dynamic>> getProfile() async {
     try {
       final token = await getToken();

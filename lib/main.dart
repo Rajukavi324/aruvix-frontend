@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
-import 'theme/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'Screens/splash_screen.dart';
 
-void main() {
-  runApp(const AruvixApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
 }
 
-class AruvixApp extends StatelessWidget {
-  const AruvixApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ARUVIX',
+      title: 'Aruvix',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.theme,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: const SplashScreen(),
     );
   }

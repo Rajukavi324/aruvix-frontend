@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "901729015085",
+    "project_id": "aruvix-da021",
+    "storage_bucket": "aruvix-da021.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901729015085:android:64ae6c50f88d6a674a2fa4",
+        "android_client_info": {
+          "package_name": "com.example.aruviX"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTzngmtP64n7Ind8VotyE2zegIAq0S1DE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
